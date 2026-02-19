@@ -72,7 +72,7 @@ void matrixMul(float* A_h, float* B_h, float* C_h, int height_A, int width_A, in
 
     // desired number of threads per dimension in a block 
     // (x and y only -- z dimension always 1 for these kernels)
-    float blockSize = 16.0;
+    float blockSize = 16.0f;
 
     // execute 1 of the 3 kernel options
     switch(kernel_choice) {
@@ -110,9 +110,9 @@ void matrixMul(float* A_h, float* B_h, float* C_h, int height_A, int width_A, in
 }
 
 int main() {
-    // A has dimension height_A x width_A
-    // B has dimension height_B x width_B -- height_B not used anywhere explicitly
-    // C has dimension height_A x width_B
+    // matrix A has dimension height_A x width_A
+    // matrix B has dimension height_B x width_B -- height_B not used anywhere explicitly
+    // matrix C has dimension height_A x width_B
 
     int height_A = 2;
     int width_A = 2;
@@ -124,7 +124,7 @@ int main() {
 
     if ((A==NULL) || (B==NULL) || (C==NULL)) {
         fprintf(stderr, "Host memory allocation failure\n");
-    exit(1);
+        exit(1);
     }
 
     // Some initialization
