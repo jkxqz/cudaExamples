@@ -27,8 +27,17 @@ void tiledMMKernel(float* A, float* B, float* C, int height_A, int width_A, int 
     float Cvalue = 0;
     for (int phase=0; phase<width_A/tileWidth; ++phase) {
         // Collaborative loading of M and N tiles into shared memory
-        Ads[ty][tx] = A[row*width_A + phase*tileWidth + tx];
-        Bds[ty][tx] = B[(phase*tileHeight + ty)*width_B + col];
+        if (row < height_A && (phase*tileWidth+tx) < width_A) {
+            Ads[ty][tx] = A[row*width_A + phase*tileWidth + tx];
+        } else {
+            Ads[ty][tx] = 0.0f;
+        }
+        if ((phase*tileHeight+ty) < width_A && col < width_B) {
+            Bds[ty][tx] = B[(phase*tileHeight + ty)*width_B + col];
+        } else {
+            Bds[ty][tx] = 0.0f;
+        }
+        
         __syncthreads();
 
         for (int k = 0; k < tileWidth; ++k) {
@@ -37,8 +46,10 @@ void tiledMMKernel(float* A, float* B, float* C, int height_A, int width_A, int 
 
         __syncthreads();
     }
-
-    C[row*width_A + col] = Cvalue;
+    
+    if ((row < height_A) &&  (col < width_B)) {
+        C[row*width_A + col] = Cvalue;
+    }
 }
 
 void matrixMul(float* A_h, float* B_h, float* C_h, int height_A, int width_A, int width_B) {
