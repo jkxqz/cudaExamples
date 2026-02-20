@@ -14,7 +14,7 @@ void tiledMMKernel(float* A, float* B, float* C, int height_A, int width_A, int 
     __shared__ float Ads[tileHeight][tileWidth];
     __shared__ float Bds[tileHeight][tileWidth];
 
-    // convenince variables
+    // convenience variables
     int bx = blockIdx.x;
     int by = blockIdx.y;
     int tx = threadIdx.x;
@@ -25,7 +25,7 @@ void tiledMMKernel(float* A, float* B, float* C, int height_A, int width_A, int 
     int col = bx*blockDim.x + tx;
 
     float Cvalue = 0;
-    for (int phase=0; phase<width_A/tileHeight; ++phase) {
+    for (int phase=0; phase<width_A/tileWidth; ++phase) {
         // Collaborative loading of M and N tiles into shared memory
         Ads[ty][tx] = A[row*width_A + phase*tileWidth + tx];
         Bds[ty][tx] = B[(phase*tileHeight + ty)*width_B + col];
