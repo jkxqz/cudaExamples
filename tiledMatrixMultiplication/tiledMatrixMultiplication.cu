@@ -9,14 +9,12 @@
 
 __global__
 void tiledMMKernel(float* A, float* B, float* C, int height_A, int width_A, int width_B) {
-    //const int tileHeight = blockDim.y;
-    //const int tileWidth  = blockDim.x;
 
     // shared memory variables on the device visible to all threads in a block
     __shared__ float Ads[tileHeight][tileWidth];
     __shared__ float Bds[tileHeight][tileWidth];
 
-    // convenience variables
+    // convenince variables
     int bx = blockIdx.x;
     int by = blockIdx.y;
     int tx = threadIdx.x;
@@ -27,7 +25,7 @@ void tiledMMKernel(float* A, float* B, float* C, int height_A, int width_A, int 
     int col = bx*blockDim.x + tx;
 
     float Cvalue = 0;
-    for (int phase=0; phase<height_A/tileHeight; ++phase) {
+    for (int phase=0; phase<width_A/tileHeight; ++phase) {
         // Collaborative loading of M and N tiles into shared memory
         Ads[ty][tx] = A[row*width_A + phase*tileWidth + tx];
         Bds[ty][tx] = B[(phase*tileHeight + ty)*width_B + col];
@@ -62,10 +60,8 @@ void matrixMul(float* A_h, float* B_h, float* C_h, int height_A, int width_A, in
     cudaMemcpy(A_d, A_h, size_A, cudaMemcpyHostToDevice);
     cudaMemcpy(B_d, B_h, size_B, cudaMemcpyHostToDevice);
 
-    // desired number of threads per dimension in a block.
-    // x and y only -- z dimension always 1 since 
-    // assumption is that all matrices are 2-dimensional.
     float blockSize = 2.0f;
+    
     dim3 dimGrid(ceil(width_B/blockSize), ceil(height_A/blockSize), 1);
     dim3 dimBlock(blockSize, blockSize, 1);
 
@@ -77,6 +73,8 @@ void matrixMul(float* A_h, float* B_h, float* C_h, int height_A, int width_A, in
     cudaFree(A_d);
     cudaFree(B_d);
     cudaFree(C_d);
+    
+    A_d = B_d = C_d = NULL;
 
 }
 
@@ -107,7 +105,10 @@ int main() {
     for (int i=0; i<16; ++i) {
         printf("%f, %f, %f\n", A[i], B[i], C[i]);
     }
-
+    
+    free(A); free(B); free(C);
+    A = B = C = NULL;
+    
     return 0;
 }
 

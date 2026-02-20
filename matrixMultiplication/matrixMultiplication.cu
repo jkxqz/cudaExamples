@@ -107,6 +107,8 @@ void matrixMul(float* A_h, float* B_h, float* C_h, int height_A, int width_A, in
     cudaFree(A_d);
     cudaFree(B_d);
     cudaFree(C_d);
+
+    A_d = B_d = C_d = NULL;
 }
 
 int main() {
@@ -136,6 +138,9 @@ int main() {
     for (int i{0}; i < 4; ++i) {
         printf("%f, %f, %f\n", A[i], B[i], C[i]);
     }
+
+    free(A); free(B); free(C);
+    A = B = C = NULL;
 
     return 0;
 }

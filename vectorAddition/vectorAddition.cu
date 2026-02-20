@@ -39,6 +39,8 @@ void vecAdd(float* A_h, float* B_h, float* C_h, int n) {
     cudaFree(A_d);
     cudaFree(B_d);
     cudaFree(C_d);
+
+    A_d = B_d = C_d = NULL;
 }
 
 int main() {
